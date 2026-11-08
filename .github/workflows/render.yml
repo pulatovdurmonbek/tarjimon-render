@@ -1,0 +1,25 @@
+name: render
+on:
+  repository_dispatch:
+    types: [render]
+  workflow_dispatch:
+    inputs:
+      spec_url:
+        description: "Spec URL"
+        required: true
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core > /dev/null
+      - name: Render
+        env:
+          SPEC_URL: ${{ github.event.client_payload.spec_url || inputs.spec_url }}
+        run: python3 render.py
