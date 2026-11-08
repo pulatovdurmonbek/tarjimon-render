@@ -1,0 +1,22 @@
+name: book
+on:
+  repository_dispatch:
+    types: [book]
+permissions:
+  contents: read
+concurrency:
+  group: book-${{ github.event.client_payload.job }}
+jobs:
+  book:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools
+        run: |
+          sudo apt-get install -y -qq fonts-liberation fonts-dejavu-core > /dev/null || true
+          pip install -q pymupdf==1.26.4 pdf2docx==0.5.13
+      - name: Book
+        env:
+          SPEC_URL: ${{ github.event.client_payload.spec_url }}
+        run: python3 book.py
